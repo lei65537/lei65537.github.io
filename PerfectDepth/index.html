@@ -1,0 +1,408 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-61937787-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-61937787-1');
+    </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!-- TemplateBeginEditable name="doctitle" -->
+    <title>Perfecting Depth: Uncertainty-Aware Enhancement of Metric Depth</title>
+    <!-- TemplateEndEditable -->
+    <!-- TemplateBeginEditable name="head" -->
+    <!-- TemplateEndEditable -->
+
+    <style type="text/css">
+        body {
+            font: 100%/1.4 Verdana, Arial, Helvetica, sans-serif;
+            background-color: #42413C;
+            margin: 0;
+            padding: 0;
+            color: #000;
+            background-attachment: fixed;
+            font-size: 17px;
+        }
+
+        /* ~~ Element/tag selectors ~~ */
+        ul,
+        ol,
+        dl {
+            /* Due to variations between browsers, it's best practices to zero padding and margin on lists. For consistency, you can either specify the amounts you want here, or on the list items (LI, DT, DD) they contain. Remember that what you do here will cascade to the .nav list unless you write a more specific selector. */
+            padding: 0;
+            margin: 0;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            margin-top: 0;
+            /* removing the top margin gets around an issue where margins can escape from their containing div. The remaining bottom margin will hold it away from any elements that follow. */
+            padding-right: 15px;
+            padding-left: 15px;
+            /* adding the padding to the sides of the elements within the divs, instead of the divs themselves, gets rid of any box model math. A nested div with side padding can also be used as an alternate method. */
+            font-size: 130%;
+            text-align: justify;
+        }
+
+        a img {
+            /* this selector removes the default blue border displayed in some browsers around an image when it is surrounded by a link */
+            border: none;
+        }
+
+        /* ~~ Styling for your site's links must remain in this order - including the group of selectors that create the hover effect. ~~ */
+        a:link {
+            color: #42413C;
+            /* unless you style your links to look extremely unique, it's best to provide underlines for quick visual identification */
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+        }
+
+        a:visited {
+            color: #6E6C64;
+        }
+
+        a:hover,
+        a:active,
+        a:focus {
+            /* this group of selectors will give a keyboard navigator the same hover experience as the person using a mouse. */
+            text-decoration: none;
+        }
+
+        /* ~~ this fixed width container surrounds all other divs~~ */
+        .container {
+            width: 1000px;
+            background-color: #FFF;
+            margin: 0 auto;
+            /* the auto value on the sides, coupled with the width, centers the layout */
+            overflow: hidden;
+            /* this declaration makes the .container understand where the floated columns within ends and contain them */
+        }
+
+        /* ~~ These are the columns for the layout. ~~
+
+        1) Padding is only placed on the top and/or bottom of the divs. The elements within these divs have padding on their sides. This saves you from any "box model math". Keep in mind, if you add any side padding or border to the div itself, it will be added to the width you define to create the *total* width. You may also choose to remove the padding on the element in the div and place a second div within it with no width and the padding necessary for your design.
+
+        2) No margin has been given to the columns since they are all floated. If you must add margin, avoid placing it on the side you're floating toward (for example: a right margin on a div set to float right). Many times, padding can be used instead. For divs where this rule must be broken, you should add a "display:inline" declaration to the div's rule to tame a bug where some versions of Internet Explorer double the margin.
+
+        3) Since classes can be used multiple times in a document (and an element can also have multiple classes applied), the columns have been assigned class names instead of IDs. For example, two sidebar divs could be stacked if necessary. These can very easily be changed to IDs if that's your preference, as long as you'll only be using them once per document.
+
+        4) If you prefer your nav on the right instead of the left, simply float these columns the opposite direction (all right instead of all left) and they'll render in reverse order. There's no need to move the divs around in the HTML source.
+
+        */
+        .sidebar1 {
+            float: left;
+            width: 180px;
+            height: 800px;
+            background-color: #EADCAE;
+            padding-bottom: 10px;
+        }
+
+        .content {
+            padding: 10px 0px 10px 0px;
+            width: 1000px;
+            float: center;
+            text-align: center;
+        }
+
+        .sidebar2 {
+            float: left;
+            width: 180px;
+            background-color: #EADCAE;
+            padding: 10px 0;
+        }
+
+        /* ~~ This grouped selector gives the lists in the .content area space ~~ */
+        .content ul,
+        .content ol {
+            padding: 0 15px 15px 40px;
+            /* this padding mirrors the right padding in the headings and paragraph rule above. Padding was placed on the bottom for space between other elements on the lists and on the left to create the indention. These may be adjusted as you wish. */
+        }
+
+        /* ~~ The navigation list styles (can be removed if you choose to use a premade flyout menu like Spry) ~~ */
+        ul.nav {
+            list-style: none;
+            /* this removes the list marker */
+            border-top: 1px solid #666;
+            /* this creates the top border for the links - all others are placed using a bottom border on the LI */
+            margin-bottom: 15px;
+            /* this creates the space between the navigation on the content below */
+        }
+
+        ul.nav li {
+            border-bottom: 1px solid #666;
+            /* this creates the button separation */
+        }
+
+        ul.nav a,
+        ul.nav a:visited {
+            /* grouping these selectors makes sure that your links retain their button look even after being visited */
+            padding: 5px 5px 5px 15px;
+            display: block;
+            /* this gives the link block properties causing it to fill the whole LI containing it. This causes the entire area to react to a mouse click. */
+            width: 160px;
+            /*this width makes the entire button clickable for IE6. If you don't need to support IE6, it can be removed. Calculate the proper width by subtracting the padding on this link from the width of your sidebar container. */
+            text-decoration: none;
+            background-color: #C6D580;
+        }
+
+        ul.nav a:hover,
+        ul.nav a:active,
+        ul.nav a:focus {
+            /* this changes the background and text color for both mouse and keyboard navigators */
+            background-color: #ADB96E;
+            color: #FFF;
+        }
+
+        /* ~~ miscellaneous float/clear classes ~~ */
+        .fltrt {
+            /* this class can be used to float an element right in your page. The floated element must precede the element it should be next to on the page. */
+            float: right;
+            margin-left: 8px;
+        }
+
+        .fltlft {
+            /* this class can be used to float an element left in your page. The floated element must precede the element it should be next to on the page. */
+            float: left;
+            margin-right: 8px;
+        }
+
+        .clearfloat {
+            /* this class can be placed on a <br /> or empty div as the final element following the last floated div (within the #container) if the overflow:hidden on the .container is removed */
+            clear: both;
+            height: 0;
+            font-size: 1px;
+            line-height: 0px;
+        }
+
+        .container .content .content {
+            font-size: 100%;
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="content">
+            <table width="80%" align="center" cellspacing="10">
+                <tr>
+                    <td align="center" style="font-size:120%"><strong>Perfecting Depth: Uncertainty-Aware Enhancement of
+                            Metric Depth
+                        </strong></td>
+                </tr>
+                <tr>
+                    <td align="center" style="font-size:90%">
+                        <a href="https://scholar.google.com/citations?user=-RpYjM8AAAAJ&hl=en"
+                            style="text-decoration:none;">Jinyoung Jun</a>
+                        <font size="2"><sup>1</sup></font>,
+                        <a href="https://lei65537.github.io/" style="text-decoration:none;">Lei Chu</a>
+                        <font size="2"><sup>2</sup></font>,
+                        <a href="https://www.microsoft.com/en-us/research/people/jiahali/"
+                            style="text-decoration:none;">Jiahao Li</a>
+                        <font size="2"><sup>2</sup></font>,
+                        <a href="https://www.microsoft.com/en-us/research/people/yanlu/"
+                            style="text-decoration:none;">Yan Lu</a>
+                        <font size="2"><sup>2</sup></font>,
+                        <a href="https://mcl.korea.ac.kr/people/professor/#:~:text=Chang-Su%20Kim%20received%20a%20Ph.D.%20degree%20in%20electrical,Processing%20Institute%2C%20University%20of%20Southern%20California%2C%20Los%20Angeles."
+                            style="text-decoration:none;">Chang-Su Kim</a>
+                        <font size="2"><sup>1</sup></font>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" style="font-size:90%">
+                        <font size="2"><sup>1</sup></font>Korea University,
+                        <font size="2"><sup>2</sup></font>Microsoft Research Asia
+                    </td>
+                </tr>
+                <!---
+                <tr>
+                    <td align="center" style="font-size:90%">ACM Transactions on Graphics (Proceedings of SIGGRAPH Asia
+                        2019)</td>
+                </tr>
+                -->
+                <tr>
+                    <td align="center" style="font-size:100%">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td align="center"><img src="teaser.png" width="80%" alt="Paper teaser" /></td>
+                </tr>
+                <tr>
+                    <td align="justify" style="font-size:75%">
+                        Sensor depth enhancement result on DIODE-Indoor. Without hand-crafted priors for noise or
+                        artifacts, our method effectively removes unreliable pixels and improves overall depth quality.
+                        Top-right inset indicates zero values in initial depth.
+
+                    </td>
+                </tr>
+                <tr>
+                    <td align="left" style="font-size:100%"><strong>Abstract</strong></td>
+                </tr>
+                <tr>
+                    <td align="justify" style="font-size:75%">
+                        We propose a novel two-stage framework for sensor depth enhancement, called Perfecting Depth.
+                        This framework leverages the stochastic nature of diffusion models to automatically detect
+                        unreliable depth regions while preserving geometric cues. In the first stage (stochastic
+                        estimation), the method identifies unreliable measurements and infers geometric structure by
+                        leveraging a training–inference domain gap. In the second stage (deterministic refinement), it
+                        enforces structural consistency and pixel-level accuracy using the uncertainty map derived from
+                        the first stage. By combining stochastic uncertainty modeling with deterministic refinement, our
+                        method yields dense, artifact-free depth maps with improved reliability. Experimental results
+                        demonstrate its effectiveness across diverse real-world scenarios. Furthermore, theoretical
+                        analysis, various experiments, and qualitative visualizations validate its robustness and
+                        scalability. Our framework sets a new baseline for sensor depth enhancement, with potential
+                        applications in autonomous driving, robotics, and immersive technologies.
+                    </td>
+                </tr>
+                <!--<tr>
+                    <td align="left" style="font-size:110%"><strong>Paper and data</strong></td>
+                </tr>-->
+                <tr align="left">
+                    <td>
+                        <table>
+                            <tr>
+                                <td><a href="https://arxiv.org/pdf/2506.04612"><img src="thumbnail.png"
+                                            width="200" /></a></td>
+                                <td>&nbsp;</td>
+                                <td style="font-size:75%">
+                                    <strong>Paper</strong> [<a href="https://arxiv.org/pdf/2506.04612">PDF</a>] <br />
+                                    <!--
+                                    <strong>Code and data</strong> [<a
+                                        href="https://github.com/lei65537/Visual_Driven_Mesh_Repair">Link</a>]
+                                    <br /><br />
+                                    <strong>Supplemental doc</strong> [<a
+                                        href="data/MeshRepair_supplemental.zip">ZIP</a>] <br /><br />
+                                    -->
+                                    <strong>Code and data</strong> [Coming Soon]<br />
+                                    <strong>Citation</strong>
+
+                                    <pre>
+@misc{jun2025perfectingdepthuncertaintyawareenhancement,
+      title={Perfecting Depth: Uncertainty-Aware Enhancement of Metric Depth}, 
+      author={Jinyoung Jun and Lei Chu and Jiahao Li and Yan Lu and Chang-Su Kim},
+      year={2025},
+      eprint={2506.04612},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2506.04612}, 
+}</pre>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td align="left" style="font-size:100%"><strong>Algorithm pipeline</strong></td>
+                </tr>
+                <tr>
+                    <td><img src="pipeline.png" width="90%" /></td>
+                </tr>
+                <tr>
+                    <td align="justify" style="font-size:75%">
+                        Our framework consists of a two-stage pipeline:
+                        (1) Stochastic estimation stage: We employ a diffusion-based strategy that trains the diffusion
+                        model on clean data but performs inference on raw, real-world data. This deliberate
+                        training-inference gap enables the model to measure per-pixel uncertainty and geometric cues,
+                        effectively identifying unreliable pixels without requiring handcrafted priors.
+                        (2) Deterministic refinement stage: A refinement network is then applied to focus on uncertain
+                        regions, ensuring accurate corrections while preserving valid sensor measurements.
+                        By integrating the complementary strengths of stochastic sampling for global uncertainty
+                        estimation and precise local refinement for targeted corrections, our pipeline generates dense
+                        and high-quality depth maps that are well-suited for real-world tasks demanding accurate metric
+                        depth.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="center">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td align="left" style="font-size:100%"><strong>Results</strong></td>
+                </tr>
+                <tr>
+                    <td><img src="res_main.png" width="80%" /></td>
+                </tr>
+                <tr>
+                    <td align="justify" style="font-size:75%">
+                        (a) Sensor depth enhancement result on DIODE-Indoor. (b) Qualitative comparison of fine-tuning
+                        results on NYUv2. For each depth map in (b), the corresponding error map is provided below, in
+                        which brighter pixels represent large errors.
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><img src="res_table.png" width="60%" /></td>
+                </tr>
+                <tr>
+                    <td align="justify" style="font-size:75%">
+                        Fine-tuning performance of relative depth estimators using DIODE-Indoor.
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><img src="supp.png" width="95%" /></td>
+                </tr>
+                <tr>
+                    <td align="justify" style="font-size:75%">
+                        More sensor depth enhancement result of the proposed framework on DIODE-Indoor,
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="center">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td align="left" style="font-size:100%"><strong>Ethics statement</strong></td>
+                </tr>
+                <tr>
+                    <td align="justify" style="font-size:75%">
+                        This work is conducted as part of a research project. While we plan to share the code and
+                        findings to promote transparency and reproducibility in research, we currently have no plans to
+                        incorporate this work into a commercial product. In all aspects of this research, we are
+                        committed to adhering to Microsoft AI principles, including fairness, transparency, and
+                        accountability.
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center">&nbsp;</td>
+                </tr>
+                <!--            <tr>
+                    <td align="left"><b>Video</b><br/><br />
+                        <iframe width="640" height="360" src="" frameborder="0" allowfullscreen=allowfullscreen></iframe>
+                    </td>
+                </tr> -->
+                <tr>
+                    <td align="center">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td align="center">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td align="center" style="font-size:80%">&copy;Lei Chu. Last update: 3 Jun, 2025.</td>
+                </tr>
+            </table>
+        </div>
+        <!-- end .container -->
+    </div>
+</body>
+
+</html>
